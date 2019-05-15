@@ -27,7 +27,7 @@ public class testRandomAgent {
 					GridworldEnvironnement g = new GridworldEnvironnement(gmdp);
 					GridworldEnvironnement.setDISP(true);//affichage transitions
 					
-					AgentRandom a = new AgentRandom(gmdp);
+					ValueIterationAgent a = new ValueIterationAgent(gmdp);
 					
 					VueGridworldValue vue = new VueGridworldValue(g,a);
 					

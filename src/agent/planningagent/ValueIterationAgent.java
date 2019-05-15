@@ -15,6 +15,8 @@ import environnement.IllegalActionException;
 import environnement.MDP;
 import environnement.Action2D;
 
+import static java.lang.Math.abs;
+
 
 /**
  * Cet agent met a jour sa fonction de valeur avec value iteration 
@@ -70,10 +72,48 @@ public class ValueIterationAgent extends PlanningValueAgent{
 		
 		//Ici dans cette classe, il suffit de mettre a jour delta 
 		this.delta=0.0;
+
+		Double deltaMax = -999999.0;
+		Double deltaTemp = 0.0;
 		
 		//*** VOTRE CODE
-		
-		
+		HashMap<Etat,Double> VTemp = new HashMap<Etat,Double>();
+
+		Double vMaxTemp = -10000.0;
+		Double vMinTemp = this.getMdp().getRecompenseMax();
+
+			// Récupère la liste des actions possibles depuis cet état
+		for (Etat etat : this.mdp.getEtatsAccessibles()) {
+			Double maxSPrime = 0.0;
+			for (Action action : this.mdp.getActionsPossibles(etat)) {
+
+				Double sommeSPrime = 0.0;
+				// Recupère la liste des cases où l'on risque d'atterire avec l'action actuelle
+				try {
+					for (Map.Entry<Etat, Double> sPrime : this.mdp.getEtatTransitionProba(etat, action).entrySet()) {
+
+						sommeSPrime += sPrime.getValue() * (this.mdp.getRecompense(etat, action, sPrime.getKey()) + this.getGamma() * this.getV().get(sPrime.getKey()));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				maxSPrime = (sommeSPrime > maxSPrime) ? sommeSPrime : maxSPrime;
+			}
+
+			VTemp.put(etat, maxSPrime);
+			deltaTemp = abs(V.get(etat) - maxSPrime);
+			deltaMax = (deltaTemp > deltaMax) ? deltaTemp : deltaMax;
+			if(maxSPrime > vMaxTemp) {
+				vMaxTemp = maxSPrime;
+			} else if (maxSPrime < vMinTemp) {
+				vMinTemp = maxSPrime;
+			}
+		}
+
+		this.setDelta(deltaMax);
+		this.V = VTemp;
+		vmax = vMaxTemp;
+		vmin = vMinTemp;
 		//mise a jour de vmax et vmin (attributs de la classe mere) 
 		//vmax et vmin sont utilises pour l'affichage du gradient de couleur:
 		//vmax est la valeur max de V pour tout s 
@@ -91,9 +131,14 @@ public class ValueIterationAgent extends PlanningValueAgent{
 	 */
 	@Override
 	public Action getAction(Etat e) {
-		//*** VOTRE CODE
-		
-		return Action2D.NONE;
+		List<Action> listActions = this.getPolitique(e);
+		Action action;
+		if(listActions.isEmpty()) {
+			action = Action2D.NONE;
+		} else {
+			action = listActions.get(rand.nextInt(listActions.size()));
+		}
+		return action;
 		
 	}
 
@@ -115,8 +160,31 @@ public class ValueIterationAgent extends PlanningValueAgent{
 	@Override
 	public List<Action> getPolitique(Etat _e) {
 		//*** VOTRE CODE
-		
 		List<Action> returnactions = new ArrayList<Action>();
+
+		Double valueMax = 0.0;
+		Double value = 0.0;
+		for (Action action : this.mdp.getActionsPossibles(_e)) {
+
+			// Recupère la liste des cases où l'on risque d'atterire avec l'action actuelle
+			try {
+				for (Map.Entry<Etat, Double> sPrime : this.mdp.getEtatTransitionProba(_e, action).entrySet()) {
+					value = sPrime.getValue() * (this.mdp.getRecompense(_e, action, sPrime.getKey()) + this.getGamma() * this.getV().get(sPrime.getKey()));
+					if(value > valueMax) {
+						returnactions.clear();
+						returnactions.add(action);
+						valueMax = value;
+					} else if (value.equals(valueMax)) {
+						returnactions.add(action);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+
+		}
+
 	
 		return returnactions;
 		
