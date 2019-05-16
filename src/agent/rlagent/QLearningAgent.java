@@ -3,6 +3,7 @@ package agent.rlagent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javafx.util.Pair;
 import environnement.Action;
@@ -69,7 +70,15 @@ public class QLearningAgent extends RLAgent {
 	@Override
 	public double getValeur(Etat e) {
 		//*** VOTRE CODE
-		return 0.0;
+		Double maxEchanQValeur = 0.0;
+		try {
+			for (Map.Entry<Action , Double> tempAction : this.qvaleurs.get(e).entrySet()) {
+				maxEchanQValeur = (tempAction.getValue() > maxEchanQValeur) ? tempAction.getValue() : maxEchanQValeur;
+			}
+		} catch (Exception E){
+
+		}
+		return maxEchanQValeur;
 		
 	}
 
@@ -79,7 +88,11 @@ public class QLearningAgent extends RLAgent {
 	@Override
 	public double getQValeur(Etat e, Action a) {
 		//*** VOTRE CODE
-		return 0;
+		if(!this.qvaleurs.containsKey(e)) {
+			return 0.0;
+		} else {
+			return this.qvaleurs.get(e).get(a);
+		}
 	}
 	
 	
@@ -90,8 +103,10 @@ public class QLearningAgent extends RLAgent {
 	@Override
 	public void setQValeur(Etat e, Action a, double d) {
 		//*** VOTRE CODE
-		
-		
+		if(!this.qvaleurs.containsKey(e)) {
+			this.qvaleurs.put(e, new HashMap<>());
+		}
+		this.qvaleurs.get(e).put(a,d);
 		//mise a jour de vmax et vmin (attributs de la classe mere) 
 		//vmax et vmin sont utilises pour l'affichage du gradient de couleur:
 		//vmax est la valeur max de V pour tout s 
@@ -118,6 +133,12 @@ public class QLearningAgent extends RLAgent {
 			System.out.println("QL mise a jour etat "+e+" action "+a+" etat' "+esuivant+ " r "+reward);
 
 		//*** VOTRE CODE
+
+		Double oldQvaleur = this.getQValeur(e,a);
+		Double newEchan = reward + getGamma() * this.getValeur(esuivant);
+		Double newQvaleur = (1 - this.getAlpha()) * oldQvaleur + this.getAlpha() * newEchan;
+
+		this.setQValeur(e, a, newQvaleur);
 	}
 
 	@Override
