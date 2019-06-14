@@ -1,5 +1,5 @@
 package agent.strategy;
-
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -27,15 +27,22 @@ public class StrategyGreedy extends StrategyExploration{
 
 	@Override
 	public Action getAction(Etat _e) {//renvoi null si _e absorbant
-		double d =rand.nextDouble();
-		List<Action> actions;
-		if (this.agent.getActionsLegales(_e).isEmpty()){
+		double d = rand.nextDouble();
+		List<Action> actions = agent.getActionsLegales(_e);
+		if (actions.isEmpty()) {
 			return null;
 		}
-	
-		//VOTRE CODE ICI
-		
-		return null;
+
+		if (d <= epsilon) { //action aléatoire en dessous du paramètre
+
+			int actionAleatoireIndex = rand.nextInt(actions.size());
+			return actions.get(actionAleatoireIndex);
+
+		} else { //sinon on sélectionne une action aléatoire dans la politique
+			return actions.stream()
+					.max(Comparator.comparingDouble(a -> agent.getQValeur(_e, a)))
+					.get();
+		}
 	}
 
 	public double getEpsilon() {

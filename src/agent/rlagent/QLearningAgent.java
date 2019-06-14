@@ -30,13 +30,9 @@ public class QLearningAgent extends RLAgent {
 	 * @param gamma
 	 * @param Environnement
 	 */
-	public QLearningAgent(double alpha, double gamma,
-			Environnement _env) {
+	public QLearningAgent(double alpha, double gamma, Environnement _env) {
 		super(alpha, gamma,_env);
 		qvaleurs = new HashMap<Etat,HashMap<Action,Double>>();
-		
-		
-	
 	}
 
 
@@ -56,8 +52,19 @@ public class QLearningAgent extends RLAgent {
 			return new ArrayList<Action>();
 			
 		}
-		
 		//*** VOTRE CODE
+		double maxQ = -1.0;
+		for(Action a: this.getActionsLegales(e)){
+			double qvaleur = this.getQValeur(e,a);
+			if(this.getQValeur(e,a) > maxQ){
+				returnactions.clear();
+				returnactions.add(a);
+ 				maxQ = qvaleur;
+			} else if(qvaleur == maxQ){
+				returnactions.add(a);
+				maxQ = qvaleur;
+			}
+		}
 		
 		return returnactions;
 		
@@ -88,11 +95,14 @@ public class QLearningAgent extends RLAgent {
 	@Override
 	public double getQValeur(Etat e, Action a) {
 		//*** VOTRE CODE
-		if(!this.qvaleurs.containsKey(e)) {
-			return 0.0;
-		} else {
-			return this.qvaleurs.get(e).get(a);
+		double qValeur = 0.0;
+
+		if(this.qvaleurs.containsKey(e)) {
+			if(this.qvaleurs.get(e).containsKey(a)){
+				qValeur = this.qvaleurs.get(e).get(a);
+			}
 		}
+		return qValeur;
 	}
 	
 	
