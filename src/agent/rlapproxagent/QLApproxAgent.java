@@ -17,19 +17,33 @@ import environnement.Etat;
  *
  */
 public class QLApproxAgent extends QLearningAgent{
-	
+
+	private List<Double> listPoids;
+	private FeatureFunction featurefunction;
+
 	public QLApproxAgent(double alpha, double gamma, Environnement _env,FeatureFunction _featurefunction) {
 		super(alpha, gamma, _env);
 		//*** VOTRE CODE
-		
+		featurefunction = _featurefunction;
+		listPoids = new ArrayList<>(featurefunction.getFeatureNb());
+
+		for (int i = 0; i < featurefunction.getFeatureNb(); ++i) {
+			listPoids.add(1d);
+		}
 	}
 
 	
 	@Override
 	public double getQValeur(Etat e, Action a) {
 		//*** VOTRE CODE
-		return 0.0;
+		double[] listFeatures = featurefunction.getFeatures(e, a);
 
+		int somme = 0;
+		for (int i = 0; i < listFeatures.length; i++) {
+			somme += listPoids.get(i) * listFeatures[i];
+		}
+
+		return somme;
 	}
 	
 	
@@ -44,7 +58,17 @@ public class QLApproxAgent extends QLearningAgent{
 		//arrete episode lq etat courant absorbant	
 		
 		//*** VOTRE CODE
-		
+		final ArrayList<Double> anciensPoids = new ArrayList<>(listPoids);
+
+		final double qValeurSpA = getValeur(esuivant);
+		final double qValeurSA = getQValeur(e, a);
+
+		for (int i = 0; i < anciensPoids.size(); i++) {
+			double newPoids = anciensPoids.get(i)
+					+ alpha * (reward + gamma * qValeurSpA - qValeurSA) * featurefunction.getFeatures(e, a)[i];
+
+			listPoids.set(i, newPoids);
+		}
 		
 	}
 	
@@ -54,8 +78,13 @@ public class QLApproxAgent extends QLearningAgent{
 		this.qvaleurs.clear();
 	
 		//*** VOTRE CODE
-		
-		this.episodeNb =0;
+		listPoids = new ArrayList<>(featurefunction.getFeatureNb());
+
+		for (int i = 0; i < featurefunction.getFeatureNb(); ++i) {
+			listPoids.add(1d);
+		}
+
+		this.episodeNb = 0;
 		this.notifyObs();
 	}
 	

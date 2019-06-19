@@ -42,5 +42,15 @@ Nous pouvons citer la distance au fantômes au lieu de leur position. Ou encore 
 Cependant la première à fait baisser la réussite à 60% et la deuxième à un catastophique 10%. Nous avons donc choisi de ne pas les intégrer.
 
 
+Sur d'autres environnements, on peut voir que le pacman se bloque dans des
+
+
 ## Question 2:
 *Précisez et justifiez les fonctions caractéristiques que vous avez choisies pour la classe FeatureFunctionPacman (partie 2.3).*
+
+Pour tenter d'anticiper les bons et mauvais états, nous avons ajouté divers features pour valuer les actions.
+Les fantomes près du pacman, le fait que le prochain état soit un dot ou non, la distance par rapport au point le plus proche, le nombre de nourriture
+le fait que nous allions dans un mur. Et que l'etat soit une win ou une lose.
+Avec ces features, nous obtenons un winrate de 40% avec peu d'apprentissage et des scores faibles. En effet le pacman semble faire des aller retour dans le coin inférieur droit de smallgrid2.lay. Il ne réagit qu'à la présence d'un fantome qui se rapproche.
+Afin de palier à ce biais, nous avons tenté d'augmenter le poids de la distance au point le plus proche mais cela n'avais que peu d'effet, nous avons tenté d'augmenter son périmètre de vision proche des nourritures. Mais cela n'augmentais en rien le winrate.
+Nous avons échangé avec d'autre membres de la promotion afin de palier à ces biais mais aucune modification supplémentaire n'a réussi à améliorer notre score.

@@ -24,8 +24,11 @@ public class EtatPacmanMDPClassic implements Etat , Cloneable{
 	private ArrayList<ArrayList<Integer>> ghostPositions;
 	private ArrayList<Integer> listDistance;
 
+	private StateGamePacman stgp;
+
 	public EtatPacmanMDPClassic(StateGamePacman _stategamepacman){
 
+		this.stgp = _stategamepacman;
 		//on récupère la position du pacman
 		this.pacmanX = _stategamepacman.getPacmanState(0).getX();
 		this.pacmanY = _stategamepacman.getPacmanState(0).getY();
@@ -44,6 +47,17 @@ public class EtatPacmanMDPClassic implements Etat , Cloneable{
 		this.nbDot = _stategamepacman.getMaze().getNbfood();
 
 		this.closestDot = _stategamepacman.getClosestDot(_stategamepacman.getPacmanState(0));
+	}
+
+	public int getDimensions() {
+		final int sizeX = stgp.getMaze().getSizeX();
+		final int sizeY = stgp.getMaze().getSizeY();
+		final int numberOfGhosts = stgp.getNumberOfGhosts();
+		final int nbfood = stgp.getMaze().getNbfood();
+
+		return sizeX * sizeY
+				* (sizeX * sizeY)^numberOfGhosts
+				* nbfood;
 	}
 
 	@Override
